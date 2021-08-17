@@ -1,0 +1,88 @@
+#!/bin/bash
+
+SERVICE=$1
+SERVICE_TYPE=$2
+ENVIRONMENT=$3
+TAG=$4
+IFS=',' read -r -a ENVIRONMENTS <<< "$ENVIRONMENT"
+
+SYNTAX='
+Syntax:
+./kustomize-lqt {SERVICE} {SERVICE_TYPE} {ENVIRONMENT} {TAG}
+---
+Description
+SERVICE = technical service name - required
+SERVICE_TYPE = k8s|ecs - required
+ENVIRONMENT = dev|stage|prod, comma separated - required
+TAG = name of file to be generated, will show up in all dropdown lists - optional, default: DRONE_COMMIT_SHA
+'
+
+if [ -z "$SERVICE" ]; then
+  echo "SERVICE may not be empty"
+  echo "$SYNTAX"
+  exit 1
+fi
+
+if [ -z "$SERVICE_TYPE" ]; then
+  echo "SERVICE_TYPE may not be empty, use k8s or ecs"
+  echo "$SYNTAX"
+  exit 1
+fi
+
+if [ -z "$ENVIRONMENT" ]; then
+  echo "ENVIRONMENT may not be empty, use dev|stage|prod and comma separated values"
+  echo "$SYNTAX"
+  exit 1
+fi
+
+if [ -z "${DRONE_COMMIT_SHA}" ]; then
+  echo "DRONE_COMMIT_SHA may not be empty"
+  echo "$SYNTAX"
+  exit 1
+fi
+
+if [ -z "$TAG" ]; then
+  TAG=${DRONE_COMMIT_SHA}
+fi
+
+CONFIG_BASE=kubernetes
+if [ "$SERVICE_TYPE" == "ecs" ]; then
+  CONFIG_BASE=awsbatchjob
+fi
+
+FOLDER=$CONFIG_BASE/overlays/
+CLIENTS=($FOLDER*)
+
+echo "Setting currentVersion, serviceTag and initTag: ${DRONE_COMMIT_SHA}"
+sed -i '' -e 's/currentVersion/'"${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/base/kustomization.yaml
+sed -i '' -e 's/serviceTag/'"generic-${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/base/kustomization.yaml
+sed -i '' -e 's/initTag/'"generic-init-${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/base/kustomization.yaml
+
+for DIR in "${CLIENTS[@]}"
+do
+  for ENVIRONMENT in "${ENVIRONMENTS[@]}"
+  do
+    CLIENT=${DIR#"$FOLDER"}
+    BUILD_DIR=$DIR/$ENVIRONMENT/
+
+    # compatibility mode, remove if not used anymore
+    if [ "$CLIENT" = "dev" ] || [ "$CLIENT" = "stage" ] || [ "$CLIENT" = "migration" ] || [ "$CLIENT" = "prod" ]; then
+      if [ "$CLIENT" != $ENVIRONMENT ]; then
+        continue
+      fi
+      echo "*** No Tenant found - Compatibility Mode for enercity"
+      CLIENT="enercity"
+      BUILD_DIR=$DIR/
+    fi
+
+    echo "Processing k8s/$CLIENT/$ENVIRONMENT/$SERVICE/manifest-$TAG.yaml"
+
+    if [ ! -d "$BUILD_DIR" ]; then
+      echo "BUILD_DIR: $BUILD_DIR does not exist, skipping"
+      continue
+    fi
+
+    mkdir -p $SERVICE_TYPE/$CLIENT/$ENVIRONMENT/$SERVICE/
+    kustomize build $BUILD_DIR > $SERVICE_TYPE/$CLIENT/$ENVIRONMENT/$SERVICE/manifest-$TAG.yaml
+  done
+done
