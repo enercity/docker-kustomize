@@ -13,7 +13,7 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      repo: thomaswiener/docker-kustomize
+      repo: lynqtech/docker-kustomize
 
 trigger:
   event:
