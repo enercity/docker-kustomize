@@ -9,7 +9,7 @@ steps:
       password:
         from_secret: docker_password
       repo: lynqtech/docker-kustomize
-    auto_tag: true
+      auto_tag: true
 
 trigger:
   event:
