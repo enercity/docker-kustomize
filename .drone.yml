@@ -1,11 +1,6 @@
 kind: pipeline
 name: default
 steps:
-  - name: tags
-    image: alpine:3.14
-    commands:
-      - echo -n "latest,${DRONE_TAG}" > .tags
-
   - name: publish
     image: plugins/docker
     settings:
@@ -14,6 +9,7 @@ steps:
       password:
         from_secret: docker_password
       repo: lynqtech/docker-kustomize
+    auto_tag: true
 
 trigger:
   event:
