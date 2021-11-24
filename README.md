@@ -30,8 +30,9 @@ docker run --rm \
 ./kustomize-lqt {SERVICE} {SERVICE_TYPE} {ENVIRONMENT} {TAG}
 ---
 Description
-SERVICE = technical service name - required
-SERVICE_TYPE = k8s|ecs - required
-ENVIRONMENT = dev|stage|prod, comma separated - required
-TAG = name of file to be generated, will show up in all dropdown lists - optional, default: DRONE_COMMIT_SHA
+SERVICE        = technical service name - required
+SERVICE_TYPE   = k8s|ecs - required
+ENVIRONMENT.   = dev|stage|prod, comma separated - required
+ (alternative) = dev_1.20.1|stage_1.20.1|prod_1.20.1|v1.20.1|v1.20.1-rc
+TAG            = name of file to be generated, will show up in all dropdown lists - optional, default: DRONE_COMMIT_SHA
 ```
