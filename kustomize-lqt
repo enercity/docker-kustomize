@@ -11,10 +11,11 @@ Syntax:
 ./kustomize-lqt {SERVICE} {SERVICE_TYPE} {ENVIRONMENT} {TAG}
 ---
 Description
-SERVICE = technical service name - required
-SERVICE_TYPE = k8s|ecs - required
-ENVIRONMENT = dev|stage|prod, comma separated - required
-TAG = name of file to be generated, will show up in all dropdown lists - optional, default: DRONE_COMMIT_SHA
+SERVICE        = technical service name - required
+SERVICE_TYPE   = k8s|ecs - required
+ENVIRONMENT    = dev|stage|prod, comma separated - required
+ (alternative) = dev_1.20.1|stage_1.20.1|prod_1.20.1|v1.20.1|v1.20.1-rc
+TAG            = name of file to be generated, will show up in all dropdown lists - optional, default: DRONE_COMMIT_SHA
 '
 
 if [ -z "$SERVICE" ]; then
@@ -31,6 +32,7 @@ fi
 
 if [ -z "$ENVIRONMENT" ]; then
   echo "ENVIRONMENT may not be empty, use dev|stage|prod and comma separated values"
+  echo "Alternative use tagging syntax like dev_1.20.1|stage_1.20.1|prod_1.20.1|v1.20.1|v1.20.1-rc"
   echo "$SYNTAX"
   exit 1
 fi
@@ -60,6 +62,16 @@ sed -i '' -e 's/initTag/'"generic-init-${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/bas
 
 for DIR in "${CLIENTS[@]}"
 do
+  if [[ ${#ENVIRONMENTS[@]} == 1 ]]; then
+    old_environments=$ENVIRONMENTS
+    if [[ $ENVIRONMENTS == *"rc"* ]]; then    
+        ENVIRONMENTS="dev,stage"
+        echo "Updated environment variable from $old_environments to $ENVIRONMENTS"
+    elif [[ ${ENVIRONMENT//[0-9_.]/} == "v" ]]; then
+        ENVIRONMENTS="dev,stage,prod"
+        echo "Updated environment variable from $old_environments to $ENVIRONMENTS"
+    fi
+  fi
   for ENVIRONMENT in "${ENVIRONMENTS[@]}"
   do
     if [[ $ENVIRONMENT =~ ['0-9_.'] ]]; then
