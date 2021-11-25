@@ -63,13 +63,14 @@ sed -i '' -e 's/initTag/'"generic-init-${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/bas
 for DIR in "${CLIENTS[@]}"
 do
   if [[ ${#ENVIRONMENTS[@]} == 1 ]]; then
-    old_environments=$ENVIRONMENTS
     if [[ $ENVIRONMENTS == *"rc"* ]]; then    
-        ENVIRONMENTS="dev,stage"
-        echo "Updated environment variable from $old_environments to $ENVIRONMENTS"
+        new_environment="dev,stage"
+        echo "Updated environment variable from $ENVIRONMENTS to $new_environment"
+        IFS=',' read -r -a ENVIRONMENTS <<< "$new_environment"
     elif [[ ${ENVIRONMENT//[0-9_.]/} == "v" ]]; then
-        ENVIRONMENTS="dev,stage,prod"
-        echo "Updated environment variable from $old_environments to $ENVIRONMENTS"
+        new_environment="dev,stage,prod"
+        echo "Updated environment variable from $old_environments to $new_environment"
+        IFS=',' read -r -a ENVIRONMENTS <<< "$new_environment"
     fi
   fi
   for ENVIRONMENT in "${ENVIRONMENTS[@]}"
