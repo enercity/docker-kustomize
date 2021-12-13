@@ -56,9 +56,14 @@ FOLDER=$CONFIG_BASE/overlays/
 CLIENTS=($FOLDER*)
 
 echo "Setting currentVersion, serviceTag and initTag: ${DRONE_COMMIT_SHA}"
-sed -i '' -e 's/currentVersion/'"${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/base/kustomization.yaml
-sed -i '' -e 's/serviceTag/'"generic-${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/base/kustomization.yaml
-sed -i '' -e 's/initTag/'"generic-init-${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/base/kustomization.yaml
+SEDOPTION="-i"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  SEDOPTION="-i ''"
+fi
+
+sed $SEDOPTION -e 's/currentVersion/'"${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/base/kustomization.yaml
+sed $SEDOPTION -e 's/serviceTag/'"generic-${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/base/kustomization.yaml
+sed $SEDOPTION -e 's/initTag/'"generic-init-${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/base/kustomization.yaml
 
 for DIR in "${CLIENTS[@]}"
 do
