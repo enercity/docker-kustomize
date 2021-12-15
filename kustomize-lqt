@@ -60,6 +60,9 @@ sed -i '' -e 's/currentVersion/'"${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/base/kust
 sed -i '' -e 's/serviceTag/'"generic-${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/base/kustomization.yaml
 sed -i '' -e 's/initTag/'"generic-init-${DRONE_COMMIT_SHA}"'/g' $CONFIG_BASE/base/kustomization.yaml
 
+echo "Clients found: ${CLIENTS[*]}"
+echo "Environments to process: ${ENVIRONMENTS[*]}"
+
 for DIR in "${CLIENTS[@]}"
 do
   if [[ ${#ENVIRONMENTS[@]} == 1 ]]; then
@@ -82,7 +85,7 @@ do
     fi
 
     CLIENT=${DIR#"$FOLDER"}
-    echo "Processing k8s/$CLIENT/$ENVIRONMENT/$SERVICE/manifest-$TAG.yaml"
+    echo "Trying to process k8s/$CLIENT/$ENVIRONMENT/$SERVICE/manifest-$TAG.yaml"
     # compatibility mode, enercity-dev > lynqtech-dev, remove once all enercity-dev overlays have been migrated to lynqtech-dev
     if [ "$CLIENT" = "enercity" ] && [ "$ENVIRONMENT" = "dev" ]; then
       CLIENT="lynqtech"
