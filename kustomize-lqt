@@ -90,6 +90,18 @@ do
     fi
 
     CLIENT=${DIR#"$FOLDER"}
+
+    # compatibility mode, remove if not used anymore
+    if [ "$CLIENT" = "dev" ] || [ "$CLIENT" = "stage" ] || [ "$CLIENT" = "migration" ] || [ "$CLIENT" = "prod" ]; then
+      if [ "$CLIENT" != $ENVIRONMENT ]; then
+        continue
+      fi
+      echo "*** No Tenant found - Compatibility Mode for enercity"
+      CLIENT="enercity"
+      BUILD_DIR=$DIR/
+    fi
+    # compatibility mode, remove if not used anymore
+
     echo "Trying to process k8s/$CLIENT/$ENVIRONMENT/$SERVICE/manifest-$TAG.yaml"
     # compatibility mode, enercity-dev > lynqtech-dev, remove once all enercity-dev overlays have been migrated to lynqtech-dev
     if [ "$CLIENT" = "enercity" ] && [ "$ENVIRONMENT" = "dev" ]; then
