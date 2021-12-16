@@ -90,6 +90,7 @@ do
     fi
 
     CLIENT=${DIR#"$FOLDER"}
+    BUILD_DIR=$DIR/$ENVIRONMENT/
 
     # compatibility mode, remove if not used anymore
     if [ "$CLIENT" = "dev" ] || [ "$CLIENT" = "stage" ] || [ "$CLIENT" = "migration" ] || [ "$CLIENT" = "prod" ]; then
@@ -109,8 +110,6 @@ do
       echo "Compatibility Mode, client: enercity >>> lynqtech"
     fi
     # compatibility mode, end
-
-    BUILD_DIR=$DIR/$ENVIRONMENT/
 
     if [ ! -d "$BUILD_DIR" ]; then
       echo "BUILD_DIR: $BUILD_DIR does not exist, skipping"
