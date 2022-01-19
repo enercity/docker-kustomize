@@ -5,6 +5,7 @@ SERVICE_TYPE=$2
 ENVIRONMENT=$3
 TAG=$4
 IFS=',' read -r -a ENVIRONMENTS <<< "$ENVIRONMENT"
+SUPPORTED_ENVS=(dev stage prod migration)
 
 SYNTAX='
 Syntax:
@@ -75,6 +76,10 @@ do
         new_environment="dev,stage"
         echo "Updated environment variable from $ENVIRONMENTS to $new_environment"
         IFS=',' read -r -a ENVIRONMENTS <<< "$new_environment"
+    elif [[ $ENVIRONMENTS == *"-dev"* ]]; then
+        new_environment="dev"
+        echo "Updated environment variable from $ENVIRONMENTS to $new_environment"
+        IFS=',' read -r -a ENVIRONMENTS <<< "$new_environment"
     elif [[ ${ENVIRONMENT//[0-9_.]/} == "v" ]]; then
         new_environment="dev,stage,prod"
         echo "Updated environment variable from $old_environments to $new_environment"
@@ -87,6 +92,10 @@ do
       old_environment=$ENVIRONMENT
       ENVIRONMENT=${ENVIRONMENT//[0-9_.]/}
       echo "Updated environment variable from $old_environment to $ENVIRONMENT"
+    fi
+    if [[ ! " ${SUPPORTED_ENVS[*]} " =~ " ${ENVIRONMENT} " ]]; then
+      echo "Not supported: " $ENVIRONMENT
+      exit 1
     fi
 
     CLIENT=${DIR#"$FOLDER"}
