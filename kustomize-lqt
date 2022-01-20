@@ -5,7 +5,7 @@ SERVICE_TYPE=$2
 ENVIRONMENT=$3
 TAG=$4
 IFS=',' read -r -a ENVIRONMENTS <<< "$ENVIRONMENT"
-SUPPORTED_ENVS=(dev stage prod migration)
+SUPPORTED_ENVS=(dev stage prod migration testing)
 
 SYNTAX='
 Syntax:
