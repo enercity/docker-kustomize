@@ -81,6 +81,7 @@ trigger () {
          echo "-"
       else
         mkdir -p $SERVICE_TYPE/$CLIENT/$ENVIRONMENT/$SERVICE/
+        echo "kustomize build $BUILD_DIR > $SERVICE_TYPE/$CLIENT/$ENVIRONMENT/$SERVICE/manifest-$TAG.yaml"
         kustomize build $BUILD_DIR > $SERVICE_TYPE/$CLIENT/$ENVIRONMENT/$SERVICE/manifest-$TAG.yaml
         echo "-"
       fi
@@ -109,9 +110,11 @@ echo "Clients found: ${CLIENTS[*]}"
 echo "Environments to process: ${ENVIRONMENTS[*]}"
 
 if [[ $ENVIRONMENTS == *"luchshausen"* ]]; then
-  echo "Updated environment variable from $ENVIRONMENTS to prod"
-  BUILD_DIR=kubernetes/overlays/luchshausen/prod/
-  trigger $SERVICE_TYPE "luchshausen" "prod" $SERVICE $TAG $BUILD_DIR
+  CLIENT="luchshausen"
+  ENVIRONMENT="prod"
+  echo "Updated environment variable from $ENVIRONMENTS to $ENVIRONMENT"
+  BUILD_DIR=kubernetes/overlays/$CLIENT/$ENVIRONMENT/
+  trigger $SERVICE_TYPE $CLIENT $$ENVIRONMENT $SERVICE $TAG $BUILD_DIR
 
 else
   for DIR in "${CLIENTS[@]}"
