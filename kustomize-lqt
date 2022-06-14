@@ -109,12 +109,9 @@ echo "Clients found: ${CLIENTS[*]}"
 echo "Environments to process: ${ENVIRONMENTS[*]}"
 
 if [[ $ENVIRONMENTS == *"luchshausen"* ]]; then
-  new_environment="prod"
-  echo "Updated environment variable from $ENVIRONMENTS to $new_environment"
-  IFS=',' read -r -a ENVIRONMENTS <<< "$new_environment"
-  CLIENTS="lynqtech"
-  BUILD_DIR=kubernetes/overlays/luchshausen/$new_environment/
-  trigger $SERVICE_TYPE $CLIENT $new_environment $SERVICE $TAG $BUILD_DIR
+  echo "Updated environment variable from $ENVIRONMENTS to prod"
+  BUILD_DIR=kubernetes/overlays/luchshausen/prod/
+  trigger $SERVICE_TYPE "luchshausen" "prod" $SERVICE $TAG $BUILD_DIR
 
 else
   for DIR in "${CLIENTS[@]}"
