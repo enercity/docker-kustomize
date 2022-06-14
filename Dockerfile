@@ -1,5 +1,4 @@
-FROM alpine:3.15
-MAINTAINER wiener.thomas@googlemail.com
+FROM alpine:3.16
 
 RUN apk add --no-cache bash curl
 RUN curl -s https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh -o /root/install_kustomize.sh \
